@@ -8,7 +8,7 @@ export const Button = ({ label, icon, onClick, styleLabel, styleButton }) => {
   return (
     <Pressable onPress={onClick} style={[styles.button, styleButton]}>
       {icon ? icon : null}
-      <Text styles={[styles.label, styleLabel]}>{label}</Text>
+      <Text style={[styles.label, styleLabel]}>{label}</Text>
     </Pressable>
   );
 };

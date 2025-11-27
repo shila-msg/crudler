@@ -1,11 +1,20 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import FullWidthImage from "react-native-fullwidth-image";
 import Icons from "../../UI/Icons";
 import { Button, ButtonTray } from "../../UI/Button";
-const ModuleView = ({ module }) => {
+
+const ModuleView = ({ module, onDelete }) => {
   // Initialistaions....
   // State....
   // Handlers...
+  const handleDelete = () => onDelete(module);
+
+  const requestDelete = () =>
+    Alert.alert(
+      "Delete Warning",
+      `Are you sure that you want to delete module ${module.ModuleCode} ${module.ModuleName}`,
+      [{ text: "Cancel" }, { text: "Delete", onPress: handleDelete }]
+    );
   // View.....
   return (
     <View style={styles.container}>
@@ -23,13 +32,15 @@ const ModuleView = ({ module }) => {
           <Text style={styles.dimText}> (Module Leader)</Text>
         </Text>
       </View>
+
       <ButtonTray>
         <Button icon={<Icons.Edit />} label="Modify" />
         <Button
           icon={<Icons.Delete />}
           label="Delete"
-          styleButton={{ backgroundColor: "mistyrose" }}
+          onClick={requestDelete}
           styleLabel={{ color: "red" }}
+          styleButton={{ backgroundColor: "mistyrose" }}
         />
       </ButtonTray>
     </View>
