@@ -1,4 +1,12 @@
-import { LogBox, StyleSheet, Text } from "react-native";
+import {
+  LogBox,
+  StyleSheet,
+  Text,
+  View,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import API from "../API/API.js";
 import useLoad from "../API/useLoad.js";
 import Screen from "../layout/Screen";
 import Icons from "../UI/Icons.js";
@@ -16,36 +24,35 @@ const ModuleListScreen = ({ navigation }) => {
   const modulesEndpoint = "https://softwarehub.uk/unibase/api/modules";
 
   // State....
-  const [modules, setModules, isLoading, loadModules] =
-    useLoad(modulesEndpoint);
+  const [modules, , isLoading, loadModules] = useLoad(modulesEndpoint);
 
   // Handlers...
-  const handleAdd = (newModule) => setModules([...modules, newModule]);
-  const onAdd = (newModule) => {
-    handleAdd(newModule);
-    navigation.goBack();
+  const onAdd = async (module) => {
+    const result = await API.post(modulesEndpoint, module);
+    if (result.isSuccess) {
+      loadModules(modulesEndpoint);
+      navigation.goBack();
+    } else Alert.alert(result.message);
   };
 
-  const handleModify = (updatedModule) =>
-    setModules(
-      modules.map((module) =>
-        module.ModuleID === updatedModule.ModuleID ? updatedModule : module
-      )
-    );
-  const onModify = (module) => {
-    handleModify(module);
-    //navigation.navigate("ModuleListScreen"); strategy0
-    //navigation.popToTop(); strategy1
-
-    navigation.replace("ModuleViewScreen", { module, onDelete, onModify }); //strategy2a
+  const onModify = async (module) => {
+    const putEndpoint = `${modulesEndpoint}/${module.ModuleID}`;
+    const result = await API.put(putEndpoint, module);
+    if (result.isSuccess) {
+      loadModules(modulesEndpoint);
+      navigation.navigate("ModuleViewScreen", { module, onDelete, onModify }); //strategy2b
+    } else Alert.alert(result.message);
   };
 
-  const handleDelete = (targetModule) =>
-    setModules(modules.filter((module) => item.ModuleID !== module.ModuleID));
+  // navigation.replace("ModuleViewScreen", { module, onDelete, onModify }); //strategy2a
 
-  const onDelete = (targetModule) => {
-    handleDelete(targetModule);
-    navigation.goBack();
+  const onDelete = async (module) => {
+    const deleteEndpoint = `${modulesEndpoint}/${module.ModuleID}`;
+    const result = await API.delete(deleteEndpoint, module);
+    if (result.isSuccess) {
+      loadModules(modulesEndpoint);
+      navigation.goBack();
+    } else Alert.alert(result.message);
   };
 
   const gotoViewScreen = (module) =>
@@ -63,7 +70,12 @@ const ModuleListScreen = ({ navigation }) => {
           onClick={gotoAddScreen}
         />
       </ButtonTray>
-      {isLoading && <Text>Loading records...</Text>}
+      {isLoading && (
+        <View style={styles.spinner}>
+          <Text>Retrieving records from {modulesEndpoint}...</Text>
+          <ActivityIndicator size="large" />
+        </View>
+      )}
 
       <ModuleList modules={modules} onSelect={gotoViewScreen} />
     </Screen>
