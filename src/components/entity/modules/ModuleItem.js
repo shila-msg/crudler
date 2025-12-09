@@ -1,18 +1,20 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import Selector from "../../UI/Selector.js";
 
 const ModuleItem = ({ module, onSelect }) => {
   // Initialistaions....
   // State....
   // Handlers...
+  const handleSelect = () => onSelect(module);
   // View.....
   return (
-    <Pressable onPress={() => onSelect(module)}>
+    <Selector onPress={handleSelect} pressedStyle={styles.pressedItem}>
       <View style={styles.item}>
         <Text style={styles.text}>
           {module.ModuleCode} {module.ModuleName}
         </Text>
       </View>
-    </Pressable>
+    </Selector>
   );
 };
 
@@ -24,6 +26,9 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
+  },
+  pressedItem: {
+    backgroundColor: "azure",
   },
 });
 
