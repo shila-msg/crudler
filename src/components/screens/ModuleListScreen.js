@@ -55,33 +55,45 @@ const ModuleListScreen = ({ navigation }) => {
     } else Alert.alert(result.message);
   };
 
+  const gotoAddScreen = () => navigation.navigate("ModuleAddScreen", { onAdd });
   const gotoViewScreen = (module) =>
     navigation.navigate("ModuleViewScreen", { module, onDelete, onModify });
 
-  const gotoAddScreen = () => navigation.navigate("ModuleAddScreen", { onAdd });
-  // View...
+  //View...
   return (
     <Screen>
-      <RenderCount />
-      <ButtonTray>
-        <Button
-          label="Add Modules"
-          icon={<Icons.Add />}
-          onClick={gotoAddScreen}
-        />
-      </ButtonTray>
-      {isLoading && (
-        <View style={styles.spinner}>
-          <Text>Retrieving records from {modulesEndpoint}...</Text>
-          <ActivityIndicator size="large" />
-        </View>
-      )}
+      <View style={styles.container}>
+        <ButtonTray>
+          <Button
+            label="Add Module"
+            icon={<Icons.Add />}
+            onClick={gotoAddScreen}
+          />
+        </ButtonTray>
+        {isLoading && (
+          <View style={styles.loading}>
+            <Text>
+              Retrieving records from
+              {modulesEndpoint}...
+            </Text>
+            <ActivityIndicator size="large" />
+          </View>
+        )}
 
-      <ModuleList modules={modules} onSelect={gotoViewScreen} />
+        <ModuleList modules={modules} onSelect={gotoViewScreen} />
+      </View>
     </Screen>
   );
 };
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: { gap: 15 },
+  loading: {
+    height: "100",
+    gap: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
 
 export default ModuleListScreen;
