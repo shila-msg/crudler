@@ -15,6 +15,7 @@ import { Button, ButtonTray } from "../UI/Button.js";
 import ModuleList from "../entity/modules/ModuleList.js";
 import RenderCount from "../UI/RenderCount.js";
 import initialModules from "../../data/modules.js";
+import { use, useEffect } from "react";
 
 // Installations....
 const ModuleListScreen = ({ navigation }) => {
@@ -23,11 +24,44 @@ const ModuleListScreen = ({ navigation }) => {
   ]);
   const loggedinUserKey = "loggedinUser";
   const modulesEndpoint = "https://softwarehub.uk/unibase/api/modules";
+  const favouritesKey = "moduleFavourites";
 
   // State....
-  const [modules, , isLoading, loadModules] = useLoad(modulesEndpoint);
-  const [loggedinUser, saveLoggedinUser] = useStore(loggedinUserKey, null);
+  const [modules, setModules, isLoading, loadModules] =
+    useLoad(modulesEndpoint);
+  const [loggedinUser] = useStore(loggedinUserKey, null);
+  const [favourites, saveFavourites] = useStore(favouritesKey, []);
+
+  const augmentModulesWithFavourites = () => {
+    const modifyModule = (module) => ({
+      ...module,
+      ModuleFavourite: favourites.includes(module.ModuleID),
+    });
+    const augmentedModules = modules.map(modifyModule);
+    augmentedModules.length > 0 && setModules(augmentedModules);
+  };
+
+  useEffect(() => {
+    augmentModulesWithFavourites();
+  }, [isLoading]);
+
   // Handlers...
+  const handleFavourite = (module) => {
+    //update module state
+    const isFavourite = !module.ModuleFavourite;
+    const updateModule = (item) =>
+      item.ModuleID === module.ModuleID
+        ? { ...item, ModuleFavourite: isFavourite }
+        : item;
+    const updatedModuleList = modules.map(updateModule);
+    setModules(updatedModuleList);
+
+    // save the new favourites
+    const updatedFavouritesList = updatedModuleList
+      .filter((item) => item.ModuleFavourite)
+      .map((item) => item.ModuleID);
+    saveFavourites(updatedFavouritesList);
+  };
 
   const onAdd = async (module) => {
     const result = await API.post(modulesEndpoint, module);
@@ -87,7 +121,11 @@ const ModuleListScreen = ({ navigation }) => {
           </View>
         )}
 
-        <ModuleList modules={modules} onSelect={gotoViewScreen} />
+        <ModuleList
+          modules={modules}
+          onSelect={gotoViewScreen}
+          onFavourite={handleFavourite}
+        />
       </View>
     </Screen>
   );
