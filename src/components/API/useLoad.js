@@ -10,8 +10,9 @@ const useLoad = (loadEndpoint) => {
   const loadRecords = async (endpoint) => {
     setIsLoading(true);
     const response = await API.get(endpoint);
-    setIsLoading(false);
+
     if (response.isSuccess) setRecords(response.result);
+    setIsLoading(false);
   };
 
   useEffect(() => {

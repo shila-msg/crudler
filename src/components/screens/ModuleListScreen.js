@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import API from "../API/API.js";
 import useLoad from "../API/useLoad.js";
+import useStore from "../store/useStore.js";
 import Screen from "../layout/Screen";
 import Icons from "../UI/Icons.js";
 import { Button, ButtonTray } from "../UI/Button.js";
@@ -15,18 +16,19 @@ import ModuleList from "../entity/modules/ModuleList.js";
 import RenderCount from "../UI/RenderCount.js";
 import initialModules from "../../data/modules.js";
 
+// Installations....
 const ModuleListScreen = ({ navigation }) => {
-  // Installations....
   LogBox.ignoreLogs([
     "Non-serializable values were found in the navigation state",
   ]);
-
+  const loggedinUserKey = "loggedinUser";
   const modulesEndpoint = "https://softwarehub.uk/unibase/api/modules";
 
   // State....
   const [modules, , isLoading, loadModules] = useLoad(modulesEndpoint);
-
+  const [loggedinUser, saveLoggedinUser] = useStore(loggedinUserKey, null);
   // Handlers...
+
   const onAdd = async (module) => {
     const result = await API.post(modulesEndpoint, module);
     if (result.isSuccess) {
@@ -62,6 +64,11 @@ const ModuleListScreen = ({ navigation }) => {
   //View...
   return (
     <Screen>
+      <RenderCount />
+      {loggedinUser && (
+        <Text style={styles.welcome}>Welcome {loggedinUser.UserFirstname}</Text>
+      )}
+
       <View style={styles.container}>
         <ButtonTray>
           <Button
@@ -85,8 +92,11 @@ const ModuleListScreen = ({ navigation }) => {
     </Screen>
   );
 };
-
 const styles = StyleSheet.create({
+  welcome: {
+    marginTop: 5,
+    marginBottom: 5,
+  },
   container: { gap: 15 },
   loading: {
     height: "100",
